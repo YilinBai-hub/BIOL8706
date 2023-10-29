@@ -1,0 +1,118 @@
+#NEXUS
+begin taxa;
+	dimensions ntax=26;
+	taxlabels
+	Physcomitrella patens
+	Dicranum scoparium
+	Leucobryum glaucum
+	Rhodobryum ontariense
+	Aulacomnium palustre
+	Aulacomnium palustre
+	Plagiothecium laetum
+	Climacium americanum
+	Antitrichia curtipendula
+	Pleurozium schreberi
+	Rhytidiadelphus subpinnatus
+	Hylocomium brevirostre
+	Hylocomium splendens
+	Calliergon cordifolium
+	Anomodon rostratus
+	Bryoandersonia illecebra
+	Meteoridium remotifolium
+	Platyhypnidium riparioides
+	Kindbergia praelonga
+	Thuidium delicatulum
+	Hypnum imponens
+	Callicladium haldanianum
+	Pilotrichella flexillis
+	Forsstroemia trichomitria
+	Rhytidiopsis robusta
+	Thelia asprella
+;
+end;
+
+begin trees;
+	tree 0 = [&U] (NW_51[&support=1.0]:0.00116945350613,(((Physco[&length_mean=0.247654090192,length_range={0.245504143747,0.250240940109},support=1.0,length_sd=8.214462201E-4,length_quant_5_95={0.246401761725,0.248953689213},length_median=0.247719594458,length_hpd95={0.246060584581,0.249004033866}]:0.22547130477,(NW_79[&length_mean=0.0946476669094,length_range={0.0932362647317,0.0957513657328},support=1.0,length_sd=4.47925303504E-4,length_quant_5_95={0.0939116148138,0.0953835524189},length_median=0.0946556960692,length_hpd95={0.0936450463776,0.0954813988925}]:0.0801085708807,NW_86[&length_mean=0.0999594278567,length_range={0.0985130574328,0.100992049264},support=1.0,length_sd=4.47517623829E-4,length_quant_5_95={0.0992357610102,0.100651616292},length_median=0.0999661546038,length_hpd95={0.0992082147248,0.100954334099}]:0.0840446273765)[&length_mean=0.0529520040005,length_range={0.0519175206311,0.0540705910979},support=1.0,length_sd=3.64055090745E-4,length_quant_5_95={0.0522864819188,0.053538538479},length_median=0.0529600594963,label=1.0,length_hpd95={0.0521316400961,0.0536468826412}]:0.0451571598871)[&length_mean=0.0657333209667,length_range={0.0645929873803,0.0668194791379},support=1.0,length_sd=4.04697320863E-4,length_quant_5_95={0.0650002025915,0.06632733516},length_median=0.0657666376117,label=1.0,length_hpd95={0.0649281873696,0.0664128105334}]:0.0632453201971,NW_77[&length_mean=0.145139653373,length_range={0.143346504702,0.146795168461},support=1.0,length_sd=6.35064126051E-4,length_quant_5_95={0.144012454205,0.146155151473},length_median=0.145169821568,length_hpd95={0.14385931416,0.146314371073}]:0.12717776061)[&length_mean=0.0330143449082,length_range={0.032108991466,0.033821606326},support=1.0,length_sd=2.825311573E-4,length_quant_5_95={0.0325740292745,0.0335289843728},length_median=0.0329956385204,label=1.0,length_hpd95={0.0325106520052,0.0335740529204}]:0.0208073975318,(NW_85[&length_mean=0.0227137432948,length_range={0.0221731976314,0.023167582056},support=1.0,length_sd=1.86898538406E-4,length_quant_5_95={0.0223942367797,0.0229897888646},length_median=0.0227026686295,length_hpd95={0.0222940346132,0.0230208232407}]:0.0184793244457,(((NW_1[&length_mean=0.0224324897127,length_range={0.0218612372161,0.0228905768564},support=1.0,length_sd=1.77869900478E-4,length_quant_5_95={0.0221142306267,0.0227132305227},length_median=0.0224418575357,length_hpd95={0.0220866844591,0.0227614374696}]:0.0175018552649,(NW_45[&length_mean=0.0194322634813,length_range={0.0189174357255,0.019910523195},support=1.0,length_sd=1.7647897185E-4,length_quant_5_95={0.0191315926785,0.0196938510725},length_median=0.0194236336801,length_hpd95={0.0191110023853,0.019806558865}]:0.0152408882862,NW_71[&length_mean=0.0197098151206,length_range={0.0192575962249,0.0200268806995},support=1.0,length_sd=1.52351355724E-4,length_quant_5_95={0.0194631178439,0.0199505541602},length_median=0.0197136893727,length_hpd95={0.0194606096332,0.0200214343328}]:0.0155064874963)[&length_mean=0.00210138461914,length_range={0.00189105714942,0.00227663653478},support=1.0,length_sd=6.0597840908E-5,length_quant_5_95={0.00200802500936,0.00219601212659},length_median=0.00210676050285,label=1.0,length_hpd95={0.00197321361853,0.00220516702152}]:0.00138520610733)[&length_mean=0.00100703176726,length_range={9.10348146774E-4,0.00112795058888},support=1.0,length_sd=4.39088439817E-5,length_quant_5_95={9.40037829189E-4,0.00108640603122},length_median=0.00100470617064,label=1.0,length_hpd95={9.27657005161E-4,0.00109258800071}]:6.87569636528E-4,((NW_59[&length_mean=0.0194435179179,length_range={0.0190844055342,0.0198728490105},support=1.0,length_sd=1.53517034896E-4,length_quant_5_95={0.0191727361811,0.019680638695},length_median=0.0194422446458,length_hpd95={0.0191260489745,0.0196899132593}]:0.015178594903,NW_60[&length_mean=0.0156403954592,length_range={0.0152954488683,0.0160601148661},support=1.0,length_sd=1.36864083651E-4,length_quant_5_95={0.015417311307,0.0158743592702},length_median=0.0156403792158,length_hpd95={0.0153935620681,0.0158989870916}]:0.0123284108389)[&length_mean=0.00164984399108,length_range={0.00152681365758,0.00180750817765},support=1.0,length_sd=5.53228921413E-5,length_quant_5_95={0.00156483853283,0.00174471628353},length_median=0.00164721568765,label=1.0,length_hpd95={0.00153770672948,0.00175775286516}]:0.00109506331961,NW_55[&length_mean=0.0206871198407,length_range={0.0202488095492,0.0213034903354},support=1.0,length_sd=2.02877637187E-4,length_quant_5_95={0.020346518262,0.0209985861565},length_median=0.0206859863685,length_hpd95={0.0203090091061,0.0210546430113}]:0.0161371618834)[&length_mean=9.58672224647E-4,length_range={8.61232849659E-4,0.00106106736169},support=1.0,length_sd=4.02724023164E-5,length_quant_5_95={8.90621845861E-4,0.00102811929936},length_median=9.58980754203E-4,label=1.0,length_hpd95={8.77565337363E-4,0.00103302637386}]:6.35439825902E-4)[&length_mean=0.00308739146237,length_range={0.00293858697214,0.00324946821703},support=1.0,length_sd=6.97057154459E-5,length_quant_5_95={0.00297699318511,0.00319794818127},length_median=0.00308629206888,label=1.0,length_hpd95={0.00295626122508,0.00320434354323}]:0.00244174089771,((NW_61[&length_mean=0.0256313320284,length_range={0.0250420729835,0.0264953456749},support=1.0,length_sd=2.26619375247E-4,length_quant_5_95={0.0252766325742,0.0259733903947},length_median=0.0256318128195,length_hpd95={0.0250952832911,0.0259889077964}]:0.0206541913461,((NW_53[&length_mean=0.0145467639262,length_range={0.0141788762286,0.014946568386},support=1.0,length_sd=1.39050957076E-4,length_quant_5_95={0.0143284825304,0.0147728287097},length_median=0.0145368015152,length_hpd95={0.0142442945566,0.0147816761062}]:0.0113676210727,(NW_72[&length_mean=0.0228690625124,length_range={0.0223563722629,0.0234034566874},support=1.0,length_sd=1.80942191549E-4,length_quant_5_95={0.0225944695348,0.0231701257572},length_median=0.0228681157742,length_hpd95={0.0225614450002,0.0232595816769}]:0.0178522517665,(NW_56[&length_mean=0.0172871296619,length_range={0.0168549359394,0.0177282761383},support=1.0,length_sd=1.62484168661E-4,length_quant_5_95={0.0170082136859,0.0175670486793},length_median=0.0172960686395,length_hpd95={0.0169966193927,0.0176555530262}]:0.0135977358832,NW_84[&length_mean=0.0203322456056,length_range={0.0197318221559,0.020988668121},support=1.0,length_sd=1.96319557494E-4,length_quant_5_95={0.0200216458541,0.0206471832803},length_median=0.0203367810463,length_hpd95={0.0199827079133,0.0207213744748}]:0.0159316250954)[&length_mean=0.00208807923155,length_range={0.00193062521479,0.00227623244467},support=1.0,length_sd=6.12070176777E-5,length_quant_5_95={0.00198634955368,0.0021888328328},length_median=0.00208907043855,label=1.0,length_hpd95={0.0019690380142,0.00221286998151}]:0.0014145566224)[&length_mean=0.00242798033926,length_range={0.00225473984168,0.00258787118094},support=1.0,length_sd=6.4219769246E-5,length_quant_5_95={0.00231089876697,0.00253980075683},length_median=0.00242974610418,label=1.0,length_hpd95={0.00230477599182,0.00255823972498}]:0.00180274362259)[&length_mean=0.00386691594492,length_range={0.0036069601198,0.0040543521415},support=1.0,length_sd=7.88030471807E-5,length_quant_5_95={0.0037454442831,0.003993996486},length_median=0.00386997555234,label=1.0,length_hpd95={0.00373310389594,0.0040197983367}]:0.00292622710073,NW_65[&length_mean=0.0166483147017,length_range={0.0161647660241,0.0170904066567},support=1.0,length_sd=1.64871421694E-4,length_quant_5_95={0.016345423208,0.016897126248},length_median=0.0166477199221,length_hpd95={0.0163054600609,0.0169654208416}]:0.0129458654851)[&length_mean=0.00611903201259,length_range={0.00532791948619,0.00635747262484},support=1.0,length_sd=1.2839446129E-4,length_quant_5_95={0.00595354653959,0.00627380602401},length_median=0.00612424686285,label=1.0,length_hpd95={0.00595146665982,0.00633654596242}]:0.00438456769208)[&length_mean=0.00100048373698,length_range={9.33857131148E-4,0.00104260209046},support=0.02,length_sd=4.66476070754E-5,length_quant_5_95={0.00104260209046,0.00104260209046},length_median=0.00101273786316,label=0.02,length_hpd95="None"]:6.66636294351E-4,(((NW_66[&length_mean=0.0334850763673,length_range={0.0329627658208,0.0341333599059},support=1.0,length_sd=2.43145763198E-4,length_quant_5_95={0.0330908324761,0.0338807710388},length_median=0.0334917120575,length_hpd95={0.0330118868137,0.0339001010262}]:0.0262312157364,NW_74[&length_mean=0.0133844520463,length_range={0.0130079978667,0.0137257756708},support=1.0,length_sd=1.32303662489E-4,length_quant_5_95={0.0131870539561,0.0136084319585},length_median=0.0133809569151,length_hpd95={0.0131841736921,0.0136574778027}]:0.0105831759046)[&length_mean=0.00156300709423,length_range={0.00144012625198,0.00175961923785},support=1.0,length_sd=4.92887343845E-5,length_quant_5_95={0.00147962220505,0.00164092221709},length_median=0.00156287967271,label=1.0,length_hpd95={0.0014709898695,0.00165580382262}]:9.2945582202E-4,((NW_76[&length_mean=0.0252774084841,length_range={0.0248287257355,0.0258390482711},support=1.0,length_sd=1.95828635643E-4,length_quant_5_95={0.024980964673,0.0255875551376},length_median=0.0252852693201,length_hpd95={0.024919414044,0.0256148422476}]:0.0199221178963,NW_69[&length_mean=0.0247884270842,length_range={0.0242987839794,0.0253338786551},support=1.0,length_sd=1.79069137185E-4,length_quant_5_95={0.0244938342797,0.0250468164839},length_median=0.0247993405091,length_hpd95={0.0244514313342,0.0251115706848}]:0.0194740328194)[&length_mean=0.0036060555783,length_range={0.0033143591019,0.00391861128502},support=1.0,length_sd=8.3751388043E-5,length_quant_5_95={0.00346843372289,0.00373872493452},length_median=0.0036045275196,label=1.0,length_hpd95={0.00344003859873,0.0037533791524}]:0.0026058561675,(NW_57[&length_mean=0.0161275829225,length_range={0.0157055928249,0.0164858335168},support=1.0,length_sd=1.64895448371E-4,length_quant_5_95={0.0158679212683,0.0164311905221},length_median=0.016129462467,length_hpd95={0.0158679212683,0.0164858335168}]:0.012592364867,NW_3[&length_mean=0.0166238598587,length_range={0.016145486841,0.0170134969557},support=1.0,length_sd=1.55190837262E-4,length_quant_5_95={0.0163646701491,0.0168840317149},length_median=0.0166227572117,length_hpd95={0.0163416919733,0.0169337510219}]:0.0130411204658)[&length_mean=0.0154430680994,length_range={0.0146858988899,0.0159228257897},support=1.0,length_sd=1.5523412452E-4,length_quant_5_95={0.0151842878928,0.0156666614841},length_median=0.0154507712708,label=1.0,length_hpd95={0.0151472983258,0.0157020291827}]:0.0121852922759)[&length_mean=7.75056845472E-4,length_range={6.80738914785E-4,8.93726685525E-4},support=0.995,length_sd=3.83187247113E-5,length_quant_5_95={7.08419097176E-4,8.33933044253E-4},length_median=7.75049831725E-4,label=0.99,length_hpd95={7.01372803798E-4,8.42241670809E-4}]:5.37069106178E-4)[&length_mean=9.27974666123E-4,length_range={7.67184633573E-4,0.00103606247719},support=0.995,length_sd=4.416552326E-5,length_quant_5_95={8.52777445134E-4,9.98642199495E-4},length_median=9.30413390595E-4,label=0.99,length_hpd95={8.48725247685E-4,0.00102301583928}]:5.90909493784E-4,NW_2[&length_mean=0.0383250304415,length_range={0.0376218507586,0.0396874545748},support=1.0,length_sd=2.90078420284E-4,length_quant_5_95={0.0378809977543,0.0387566289097},length_median=0.0383117501166,length_hpd95={0.0377901246078,0.0388148747219}]:0.0308719849697)[&length_mean=5.79571481468E-4,length_range={5.28535193185E-4,7.10578324369E-4},support=0.02,length_sd=8.77505744321E-5,length_quant_5_95={7.10578324369E-4,7.10578324369E-4},length_median=5.39586204159E-4,label=0.02,length_hpd95="None"]:3.07033159494E-4)[&length_mean=8.82361566427E-4,length_range={7.67804747297E-4,0.0010656862031},support=1.0,length_sd=4.92989011946E-5,length_quant_5_95={8.13061034013E-4,9.76957315114E-4},length_median=8.78094131932E-4,label=1.0,length_hpd95={7.88344268868E-4,9.85601630224E-4}]:6.50967953396E-4)[&length_mean=0.00595834060498,length_range={0.00573443085184,0.00621415915588},support=1.0,length_sd=9.92658254539E-5,length_quant_5_95={0.00579827634352,0.00612461290294},length_median=0.00595108768011,label=1.0,length_hpd95={0.00578823202493,0.00616412110552}]:0.00376633012544)[&length_mean=0.0598526008918,length_range={0.0589261783879,0.0609206300448},support=1.0,length_sd=3.56164909334E-4,length_quant_5_95={0.0592879967803,0.060428314886},length_median=0.0598439324077,label=1.0,length_hpd95={0.059222331817,0.0605217133517}]:0.0504751031224)[&length_mean=0.0565354656143,length_range={0.0557414091261,0.0573562525981},support=1.0,length_sd=3.37692716756E-4,length_quant_5_95={0.0559611785582,0.057104176918},length_median=0.0565268147296,label=1.0,length_hpd95={0.055857600861,0.057141944687}]:0.0450832812701,NW_62[&length_mean=8.46139484741E-4,length_range={7.38032770834E-4,9.58593388027E-4},support=1.0,length_sd=3.42573299824E-5,length_quant_5_95={7.86182555177E-4,9.01577623378E-4},length_median=8.45944612669E-4,length_hpd95={7.77215500581E-4,9.11929999309E-4}]:6.06423963147E-4)[&label=1.0];
+end;
+
+begin figtree;
+	set appearance.backgroundColorAttribute="Default";
+	set appearance.backgroundColour=#-1;
+	set appearance.branchColorAttribute="User selection";
+	set appearance.branchLineWidth=1.0;
+	set appearance.branchMinLineWidth=0.0;
+	set appearance.branchWidthAttribute="Fixed";
+	set appearance.foregroundColour=#-16777216;
+	set appearance.selectionColour=#-2144520576;
+	set branchLabels.colorAttribute="User selection";
+	set branchLabels.displayAttribute="label";
+	set branchLabels.fontName="Helvetica";
+	set branchLabels.fontSize=14;
+	set branchLabels.fontStyle=0;
+	set branchLabels.isShown=true;
+	set branchLabels.significantDigits=4;
+	set layout.expansion=0;
+	set layout.layoutType="RECTILINEAR";
+	set layout.zoom=0;
+	set legend.attribute="label";
+	set legend.fontSize=10.0;
+	set legend.isShown=false;
+	set legend.significantDigits=4;
+	set nodeBars.barWidth=4.0;
+	set nodeBars.displayAttribute="length_hpd95";
+	set nodeBars.isShown=false;
+	set nodeLabels.colorAttribute="User selection";
+	set nodeLabels.displayAttribute="Node ages";
+	set nodeLabels.fontName="Abadi MT Condensed Extra Bold";
+	set nodeLabels.fontSize=8;
+	set nodeLabels.fontStyle=0;
+	set nodeLabels.isShown=false;
+	set nodeLabels.significantDigits=4;
+	set nodeShape.colourAttribute="User selection";
+	set nodeShape.isShown=false;
+	set nodeShape.minSize=10.0;
+	set nodeShape.scaleType=Width;
+	set nodeShape.shapeType=Circle;
+	set nodeShape.size=4.0;
+	set nodeShape.sizeAttribute="Fixed";
+	set polarLayout.alignTipLabels=false;
+	set polarLayout.angularRange=0;
+	set polarLayout.rootAngle=0;
+	set polarLayout.rootLength=100;
+	set polarLayout.showRoot=true;
+	set radialLayout.spread=0.0;
+	set rectilinearLayout.alignTipLabels=false;
+	set rectilinearLayout.curvature=0;
+	set rectilinearLayout.rootLength=100;
+	set scale.offsetAge=0.0;
+	set scale.rootAge=1.0;
+	set scale.scaleFactor=1.0;
+	set scale.scaleRoot=false;
+	set scaleAxis.automaticScale=true;
+	set scaleAxis.fontSize=8.0;
+	set scaleAxis.isShown=false;
+	set scaleAxis.lineWidth=1.0;
+	set scaleAxis.majorTicks=1.0;
+	set scaleAxis.origin=0.0;
+	set scaleAxis.reverseAxis=false;
+	set scaleAxis.showGrid=true;
+	set scaleBar.automaticScale=true;
+	set scaleBar.fontSize=10.0;
+	set scaleBar.isShown=true;
+	set scaleBar.lineWidth=1.0;
+	set scaleBar.scaleRange=0.0;
+	set tipLabels.colorAttribute="User selection";
+	set tipLabels.displayAttribute="Names";
+	set tipLabels.fontName="Helvetica";
+	set tipLabels.fontSize=14;
+	set tipLabels.fontStyle=0;
+	set tipLabels.isShown=true;
+	set tipLabels.significantDigits=4;
+	set trees.order=false;
+	set trees.orderType="increasing";
+	set trees.rooting=true;
+	set trees.rootingType="User Selection";
+	set trees.transform=false;
+	set trees.transformType="cladogram";
+end;
+

@@ -1,0 +1,283 @@
+---
+jupyter:
+  jupytext:
+    formats: ipynb,Rmd
+    text_representation:
+      extension: .Rmd
+      format_name: rmarkdown
+      format_version: '1.2'
+      jupytext_version: 1.15.2
+  kernelspec:
+    display_name: R
+    language: R
+    name: ir
+---
+
+```{r}
+
+library(tidyverse)
+```
+
+```{r}
+summary_all <- read_csv("summary.csv")
+summary_all <- summary_all %>%
+  mutate(Percent_parsimony_informative = str_remove(Percent_parsimony_informative, "%") %>% as.numeric()) %>%
+  mutate(If_mix = str_detect(Model_string, "MIX"),
+         Num_class = str_count(Model_string, ",") + 1) %>% 
+  group_by(Locus_name) %>%
+  mutate(If_mix = if(any(If_mix[Model == "Mixture"])) TRUE else FALSE) %>%
+  ungroup()
+summary_all <- summary_all %>%
+  mutate(Model = factor(Model, levels = c("One_class", "Mixture")))
+```
+
+```{r}
+summary_all_common <- summary_all
+```
+
+```{r}
+source("./dna_model.R")
+summary_all_common <- summary_all_common %>% mutate(para = map(parameters, dna_model)) %>% unnest(para)
+saveRDS(summary_all_common, "summary_all_common.rds")
+```
+
+```{r}
+summary_for_pca <- summary_all_common %>% select(Locus_name, Model, class, Likelihood, BIC, Tree_Length, Best, R, F, Q, df_R, F_type)
+```
+
+```{r}
+options(repr.plot.width = 7, repr.plot.height = 7)
+# 将R列表转换为矩阵
+data_matrix <- do.call(rbind, lapply(summary_for_pca$R, function(x) unlist(x)))
+# 对数据进行标准化
+data_scaled <- scale(data_matrix)
+# 进行PCA分析
+pca_result <- prcomp(data_scaled)
+# 导入ggplot2包
+library(ggplot2)
+
+# 创建一个数据框，包含主成分得分和Tree_Length
+df <- data.frame(PC1 = pca_result$x[,1], PC2 = pca_result$x[,2], 
+                 Tree_Length = summary_for_pca$Tree_Length, Best = summary_for_pca$Best)
+
+# 绘制二维图像
+ggplot(df, aes(x = PC1, y = PC2, color = Tree_Length, pch = Best)) +
+  geom_point() +
+  scale_color_gradient(low = "blue", high = "red") +
+  theme_minimal() +
+  labs(x = "PC1", y = "PC2", color = "Tree Length") +
+  ggtitle("PCA for rate vector R")
+
+                                     
+pca_result
+```
+
+```{r}
+summary_all_common %>% select(df_R) %>% summarise(mean = mean(df_R + 1), sd = sd(df_R))
+```
+
+```{r}
+readQ <- function(matrix) {
+  # read lower-diagonal matrix
+  Q = matrix
+  # pi = Q[nrow(Q), 1:(ncol(Q)-1)]
+  # Q = Q[1:(nrow(Q)-1), 1:(ncol(Q)-1)]
+  # make Q symmetric
+  Q = (Q + t(Q))
+  diag(Q) <- 0
+  # normalise the matrix
+  Q=(Q/sum(Q))*100.0
+  Q = Q[lower.tri(Q)]
+  return(as.vector(Q))
+}
+data_matrix <- lapply(summary_for_pca$Q, readQ)
+
+# data_matrix <- lapply(summary_for_pca$Q, as.numeric)
+data_matrix <- do.call(rbind, data_matrix)
+# Perform PCA analysis
+pca_result <- prcomp(data_matrix)
+
+# create a data frame with PC1 and PC2 coordinates
+df <- data.frame(PC1 = pca_result$x[,1], PC2 = pca_result$x[,2], 
+                 Tree_Length = summary_for_pca$Tree_Length, Best = summary_for_pca$Best)
+
+# plot the data
+ggplot(df, aes(x = PC1, y = PC2, color = Tree_Length, pch = Best)) +
+  geom_point() +
+  scale_color_gradient(low = "blue", high = "red") +
+  theme_minimal() +
+  labs(x = "PC1", y = "PC2", color = "Tree Length") +
+  ggtitle("PCA for substitution matrix Q in lower.triangle(QQ^T)")
+
+pca_result
+
+data_matrix[1:2,]
+```
+
+```{r}
+data_matrix <- do.call(rbind, lapply(summary_for_pca$Q, function(x) unlist(x)))
+# 对数据进行标准化
+data_scaled <- scale(data_matrix)
+# 进行PCA分析
+pca_result <- prcomp(data_scaled)
+
+# 创建一个数据框，包含主成分得分和Tree_Length
+df <- data.frame(PC1 = pca_result$x[,1], PC2 = pca_result$x[,2], 
+                 Tree_Length = summary_for_pca$BIC, Best = summary_for_pca$Best)
+
+# 绘制二维图像
+ggplot(df, aes(x = PC1, y = PC2, color = Tree_Length, pch = Best)) +
+  geom_point() +
+  scale_color_gradient(low = "blue", high = "red") +
+  theme_minimal() +
+  labs(x = "PC1", y = "PC2", color = "Tree Length") +
+  xlim(-3,3) + ylim(-3,3)  +
+  ggtitle("PCA for substitution matrix Q in Rows(Q)")
+
+pca_result
+```
+
+```{r}
+summary_diff_add_2 <- summary_for_pca %>% filter(Model == "One_class") %>% select(-Model, -Best) %>%
+    rename(Likelihood_single = Likelihood, BIC_single = BIC, Tree_Length_single = Tree_Length)
+summary_all_common_diff <- left_join(summary_all_common_diff, summary_diff_add_2, by = c("Type", "Locus_name"))
+```
+
+```{r}
+readQ <- function(mx) {
+  # read lower-diagonal matrix
+  Q = as.matrix(mx)
+  # pi = Q[nrow(Q), 1:(ncol(Q)-1)]
+  # Q = Q[1:(nrow(Q)-1), 1:(ncol(Q)-1)]
+  # make Q symmetric
+  Q = (Q + t(Q))
+  diag(Q) <- 0
+  # normalise the matrix
+  Q=(Q/sum(Q))*100.0
+  Q = Q[lower.tri(Q)]
+  return(as.vector(Q))
+}
+data_matrix <- lapply(summary_all_common_diff$Q, readQ)
+
+# data_matrix <- lapply(summary_for_pca$Q, as.numeric)
+data_matrix <- do.call(rbind, data_matrix)
+# Perform PCA analysis
+pca_result <- prcomp(data_matrix)
+
+# create a data frame with PC1 and PC2 coordinates
+df <- data.frame(PC1 = pca_result$x[,1], PC2 = pca_result$x[,2], 
+                 Tree_Length = summary_all_common_diff$Tree_Length_single, If_mix = summary_all_common_diff$If_mix)
+
+# plot the data
+ggplot(df, aes(x = PC1, y = PC2, color = If_mix, pch = If_mix)) +
+  geom_point() +
+  # scale_color_gradient(low = "blue", high = "red") +
+  theme_minimal() +
+  labs(x = "PC1", y = "PC2", color = "Tree Length") +
+  ggtitle("PCA for substitution matrix Q in lower.triangle(QQ^T)")
+
+pca_result
+
+```
+
+```{r}
+test_data <- summary_all_common %>% filter(Model == "One_class") %>% select(-geodesic_distance) %>%
+    mutate(Best = as.factor(Best), If_mix = as.factor(If_mix), F_type = as.factor(F_type))
+colnames(summary_all_common_diff)
+```
+
+```{r}
+# 加载必要的库
+library(caret)
+library(leaps)
+library(pROC)
+
+# 选择特征变量和预测变量
+all_features <- c("df_R","BIC_single", "Length", "Site_patterns", "prop_int","F_type",
+                  "Percent_parsimony_informative", "Likelihood_single", "Tree_Length_single", "Ntaxa")
+label <- "Likelihood"
+BSS_formula <- as.formula(paste(label, "~", paste(all_features, collapse = "+")))
+# 假设summary_all_common_diff是你的数据集
+data <- summary_all_common_diff %>% select(all_of(c(all_features,label))) %>% na.omit()
+```
+
+```{r}
+# 使用regsubsets()函数进行BSS，设置最大特征数为8
+bss_model <- regsubsets(BSS_formula, data = data, nvmax = 7)
+
+# 查看每个特征数下的最佳模型
+summary(bss_model)
+
+# 选择一个最优的特征数，比如根据BIC标准
+bic_values <- summary(bss_model)$bic
+best_n <- which.min(bic_values)
+best_n
+
+# 查看最优特征数下的最佳模型包含哪些特征
+best_features <- names(which(summary(bss_model)$which[best_n, ] == TRUE))
+best_features
+```
+
+```{r}
+selected_features <- c("df_R", "F_type", "Site_patterns", "prop_int", "Percent_parsimony_informative", "Likelihood_single", "Tree_Length_single")
+# 创建一个公式
+formula <- as.formula(paste(label, "~", paste(selected_features, collapse = "+")))
+data <- summary_all_common_diff %>% select(all_of(c(selected_features,label))) %>% na.omit()
+
+# 划分训练集和测试集
+set.seed(123)
+train_indices <- createDataPartition(data[[label]], p = 0.7, list = FALSE)
+train_data <- data[train_indices, ]
+test_data <- data[-train_indices, ]
+
+# 使用caret包训练SVM模型，并自动选择最佳的预测参数和参数数量
+svm_model <- train(formula, data = train_data, method = "svmRadial", trControl = trControl, tuneLength = 10)
+
+# 输出最佳模型的参数
+print(svm_model$bestTune)
+
+# 使用最佳模型进行预测
+predictions <- predict(svm_model, newdata = test_data)
+
+
+# 计算精确率、召回率和F1分数
+precision <- posPredValue(predictions, test_data[[label]])
+recall <- sensitivity(predictions, test_data[[label]])
+F1 <- (2 * precision * recall) / (precision + recall)
+
+# 打印精确率、召回率和F1分数
+print(paste("Precision: ", precision))
+print(paste("Recall: ", recall))
+print(paste("F1 Score: ", F1))
+
+# 计算AUC-ROC曲线下的面积
+roc_obj <- roc(test_data[[label]], predictions)
+auc_obj <- auc(roc_obj)
+
+# 打印AUC-ROC曲线下的面积
+print(paste("AUC: ", auc_obj))
+# 计算密度
+d <- density(predictions - test_data[[label]])
+# 绘制密度分布图
+plot(d, main="Density Plot", xlab="Values")
+# 添加填充颜色
+polygon(d, col="red", border="blue")
+# 在底部添加数据
+rug(predictions - test_data[[label]], col="brown")
+
+```
+
+```{r}
+# 加载所需的包
+library(ggplot2)
+
+# 假设你有一个数据框df，其中有两列数据x和y
+df <- data.frame(test = test_data[[label]], pred = predictions, id = 1:nrow(test_data)) %>%
+    pivot_longer(cols = c(test, pred), names_to = "type", values_to = "value") %>%
+    mutate(type = factor(type, levels = c("test", "pred")))
+
+# 使用ggplot2绘制散点图
+ggplot(df, aes(x=type, y=value, group = id)) + geom_point() + geom_line(alpha = 0.1)
+
+```
+

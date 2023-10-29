@@ -1,0 +1,197 @@
+---
+title: "Summary Plot"
+author: "Yilin Bai"
+date: "2023-10-02"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = FALSE, echo = FALSE)
+```
+
+```{r}
+library(tidyverse)
+library(see)
+summary <- read_csv("summary.csv")
+```
+
+
+```{r warning=FALSE}
+# Load the necessary libraries
+library(ggplot2)
+
+# Define custom color palette
+custom_colors <- c("Mixture" = "steelblue", "One_class" = "salmon")
+
+# Create the slope graph with custom colors and styles
+ggplot(summary, aes(x = Model, y = Tree_Length, color = Model, group = Model)) +
+  geom_line(size = 1, alpha = 0.7, lineend = "round", linejoin = "round") +
+  geom_point(size = 2, alpha = 0.7, shape = 21, fill = "white") +
+  geom_segment(aes(xend = Model, yend = 0), size = 0.5, alpha = 0.7, lineend = "round", linejoin = "round") +
+  geom_line(aes(group = Locus_name), color = 'darkgrey', alpha = 0.2) +
+  geom_violinhalf(scale = "width", alpha = 0.5) +
+  labs(y = NULL) +
+  labs(title = "Tree Length: Single Class vs. Mixture Class Models",
+       x = "Model",
+       y = "Tree Length") +
+  ylim(c(0, 4)) +
+  scale_color_manual(values = custom_colors) +
+  theme_minimal() +
+  facet_wrap(~Best, ncol = 2, labeller = as_labeller(c("Mixture" = "Best Fit: Mixture Class", "One_class" = "Best Fit: Single Class")))+
+  theme(legend.position = "none")
+```
+
+
+```{r warning=FALSE}
+# Load the necessary libraries
+library(ggplot2)
+
+# Define custom color palette
+custom_colors <- c("Mixture" = "steelblue", "One_class" = "salmon")
+
+# Create the slope graph with custom colors and styles
+ggplot(summary, aes(x = Model, y = nRF_distance, color = Model, group = Model)) +
+  geom_line(size = 1, alpha = 0.7, lineend = "round", linejoin = "round") +
+  geom_point(size = 2, alpha = 0.7, shape = 21, fill = "white") +
+  geom_segment(aes(xend = Model, yend = 0), size = 0.5, alpha = 0.7, lineend = "round", linejoin = "round") +
+  geom_line(aes(group = Locus_name), color = 'darkgrey', alpha = 0.2) +
+  geom_violinhalf(scale = "width", alpha = 0.5) +
+  labs(y = NULL) +
+  labs(title = "nRF: Single Class vs. Mixture Class Models",
+       x = "Model",
+       y = "nRF distance") +
+  scale_color_manual(values = custom_colors) +
+  theme_minimal() +
+  #facet_wrap(~Best, ncol = 2, labeller = as_labeller(c("Mixture" = "Best Fit: Mixture Class", "One_class" = "Best Fit: Single Class")))+
+  theme(legend.position = "none")+
+  facet_wrap(~Best, ncol = 2, labeller = as_labeller(c("Mixture" = "Best Fit: Mixture Class", "One_class" = "Best Fit: Single Class")))
+```
+
+```{r}
+summary <- summary %>%
+  mutate(Percent_parsimony_informative = str_remove(Percent_parsimony_informative, "%") %>% as.numeric()) %>%
+  mutate(If_mix = str_detect(Model_string, "MIX"),
+         Num_class = str_count(Model_string, ",") + 1)
+
+summary <- summary %>%
+  group_by(Locus_name) %>%
+  mutate(If_mix = if(any(If_mix[Model == "Mixture"])) TRUE else FALSE) %>%
+  ungroup()
+```
+
+```{r}
+library(tidyverse)
+diff_nrf <- summary%>%group_by(Locus_name)%>%summarise(diff = nRF_distance[Model == "One_class"] - nRF_distance[Model == "Mixture"],class = Num_class[Model == "Mixture"])
+```
+
+```{r}
+# Create a Beautiful Histogram
+library(ggplot2)
+
+ggplot(diff_nrf, aes(x = diff)) +
+  geom_histogram(fill = "#800080", color = "black", bins = 20) +
+  labs(
+    title = "Distribution of nRF Differences",
+    x = "Difference",
+    y = "Frequency"
+  ) +
+  theme_minimal() +
+  theme(
+    text = element_text(family = "Arial", size = 14),
+    plot.title = element_text(hjust = 0.5)
+  )
+
+```
+
+```{r}
+best_sum <- summary%>%group_by(.,Best)%>%summarise(gene_number = n()/2)
+```
+
+```{r}
+# Create a color palette for the 'Best' categories
+my_colors <- c("Mixture" = "steelblue", "One_class" = "salmon")
+
+ggplot(best_sum, aes(x = Best, y = gene_number, fill = Best)) +
+  geom_bar(stat = "identity") +
+  labs(
+    title = "The Best Model Distribution",
+    x = "Best Category",
+    y = "Gene Number"
+  ) +
+  scale_fill_manual(values = my_colors) +  # Customize the fill colors
+  theme_minimal() +  # Apply a minimal theme
+  theme(plot.title = element_text(hjust = 0.5),
+            legend.position = "none"
+)  # Center the title
+```
+
+
+```{r}
+#best_data <- summary%>%filter(.,summary$Model == summary$Best)%>%filter(If_mix == TRUE)%>%
+  #group_by(Num_class)%>%summarise(number_each_class = n())
+best_data <- summary%>%filter(.,summary$Model == summary$Best)%>%
+  group_by(Num_class)%>%summarise(number_each_class = n())
+
+model_type <- as.factor(c("One-class","Mixture","Mixture","Mixture","Mixture","Mixture"))
+best_data$model_type <- model_type
+best_data                    
+```
+
+
+```{r}
+
+
+
+library(ggplot2)
+best_data$Num_class <- as.factor(best_data$Num_class)
+
+
+ggplot(best_data, aes(x = Num_class, y = number_each_class, group = Num_class, fill = model_type)) +
+  geom_bar(stat = "identity") +
+  labs(
+    title = "Distribution of Number of Classes",
+    x = "Number of Classes",
+    y = "Count"
+  ) +
+  theme_minimal() +  # Minimal theme
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    axis.text.x = element_text(angle = 0, vjust = 0.5),
+    legend.position = "right"
+  )+
+  labs(fill = "Model Type")
+ 
+```
+
+```{r}
+# Assuming summary is your data frame
+
+BIC_diff <- summary %>%
+  group_by(Locus_name) %>%
+  summarise(diff = BIC[Model == "One_class"] - BIC[Model == "Mixture"],class = Num_class[Model == "Mixture"])
+```
+
+```{r warning=FALSE}
+
+BIC_diff$class <- as.factor(BIC_diff$class)
+
+library(ggplot2)
+
+
+ggplot(BIC_diff, aes(x = class, y = diff, fill = class)) +
+  geom_boxplot(width = 0.5, outlier.size = 3, notch = FALSE, alpha = 0.7) +
+  labs(
+    title = "BIC Difference between Models Among Different Classes",
+    x = "Class Number",
+    y = "BIC Difference"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    axis.text.x = element_text(angle = 0, vjust = 0.5),
+    panel.grid.major = element_line(color = "lightgray", size = 0.2),
+    panel.grid.minor = element_blank(),
+    legend.position = "none"
+  ) +
+  ylim(c(0,400))
+```

@@ -1,0 +1,217 @@
+---
+title: "Comparative Analysis of Genetic Data:"
+subtitle: "Widespread introgression across a phylogeny of 155 Drosophila genomes"
+
+author: "Yilin Bai"
+date: "2023-08-11"
+output: 
+  bookdown::html_document2:
+    code_folding: show
+    number_sections: no
+    toc: yes
+    toc_depth: 6
+    toc_float: yes
+---
+
+```{r setup, echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE,message = FALSE,warning = FALSE)
+```
+
+```{r}
+library("bookdown")
+```
+
+## **Introduction**
+
+The study addresses the ongoing debate surrounding the extent of gene exchange, known as introgression, in evolutionary processes. Genomic data has revealed the prevalence of introgression across diverse taxa, impacting evolutionary outcomes and adaptive processes. While introgression was initially considered detrimental, it is now recognized as a source of genetic variation driving local adaptation and diversification.
+
+The study aims to systematically analyze the frequency of introgression across the phylogenetic tree of the Drosophila genus, leveraging clade-level genomic data and without biased selection of hybridizing taxa.
+
+## **Methodology**
+
+The researchers analyze 155 Drosophila genomes and 4 outgroup genomes to construct a robust phylogeny. They utilize genome-scale sequence data to infer phylogenetic relationships, employing both maximum-likelihood and coalescent-based methods. The inclusion of fossil calibrations ensures accurate estimation of divergence times. The phylogenetic analyses yield high-confidence relationships among most species, with minor discrepancies noted for a few nodes. Additionally, the study employs protein supermatrix analysis and Quartet Sampling to validate the inferred species tree topology and assess discordance patterns that might indicate introgression.
+
+```{r}
+# Command of run one class model iq-tree
+iqtree_one_model_command <- '% /Users/lindsaybai/Desktop/BIOL8706/iqtree-2.2.2.7.modelmix-MacOSX/bin/iqtree2 -s /Users/lindsaybai/Desktop/BIOL8706/one_gene/nad1alignment.fasta   -B 1000 -T AUTO'
+
+# Command of run mixture class model iq-tree
+iqtree_mixture_command <- '/Users/lindsaybai/Desktop/BIOL8706/iqtree-2.2.2.7.modelmix-MacOSX/bin/iqtree2  -s /Users/lindsaybai/Desktop/BIOL8706/one_gene_mixture/nad1alignment.fasta   -m "ESTMIXNUM" -mrate E,I,G,I+G,R,I+R -opt_qmix_criteria 1'
+
+system(iqtree_one_model_command)
+system(iqtree_mixture_command)
+```
+
+### **Data and Dataset Summary**
+
+The dataset encompasses 155 Drosophila genomes and 4 outgroup genomes, representing a broad evolutionary timespan. The researchers annotate and align sequence data for Benchmarking Universal Single-Copy Orthologs (BUSCOs), totaling over 8 million nucleotide positions. These genomes cover over 50 million years of Drosophila evolution and include multiple samples from 9 major radiations within the genus. Fossil calibrations, including those from Drosophilidae fossils and geological information, contribute to the precise estimation of divergence times.
+
+### **Comparative Analysis of Genetic Data**
+
+Phylogenetic analyses using both **one-class model ML tree** and **mixture-class model ML tree** (ML using the IQ-TREE package) approaches with DNA data revealed well-supported relationships among nearly all species within our dataset.
+
+## **Result**
+
+### **Tree Topology**
+
+```{r}
+library(Biostrings)
+# Replace 'sequences.fasta' with your actual file path
+sequences <- readDNAStringSet('Data/mixture_class_single_gene/EOG09150A0E.fna.aln')
+sequences
+```
+
+```{r}
+library(ape)
+library(phytools)
+# Read the tree files
+mix_tree <- read.tree("Data/mixture_class_single_gene/mix_class_EOG09150A0E.treefile")
+one_tree <- read.tree("\Data/one_class_single_gene/one_class_EOG09150A0E.treefile")
+```
+
+```{r fig.height=20, fig.width= 12}
+par(mfrow = c(1, 2))  # Set the plotting layout to 1 row and 2 columns
+plot(one_tree, main = "One class model tree")  # Plot the first tree
+plot(mix_tree, main = "Mixture class model tree")  # Plot the second tree
+```
+
+```{r fig.height=18, fig.width=10}
+## create co-phylogenetic object
+wasp.cophylo<-cophylo(mix_tree,one_tree)
+## plot co-phylogenies
+plot(wasp.cophylo,link.type="curved",link.lwd=4,
+ link.lty="solid",link.col=make.transparent("red",
+ 0.25))
+par(mar=c(5.1,4.1,4.1,2.1))
+```
+
+**Phylogenies inferred using these 3 approaches only differed in 2 trees:**
+
+(1) D watanabei D punjabiensis was either have paraphyletic relationships to D. kikkawai and D. leontia or have paraphyletic relationships with D. seguy, D. nikananu, D. vulcana, D spaffchauvacae, D bocquet, D burlai, D. jambulina, D. bakoue
+
+(2) D wassermani form monophyletic lineage sister to the D. acanthoptera or have paraphyletic relationships where D pachea is sister to the D. acanthoptera
+
+(3) D paucipunta form monophyletic lineage sister to the D prolacticillia or have paraphyletic relationships with the D prolacticillia
+
+### **Branch Lengths**
+
+```{r}
+library(phangorn)
+# Calculate the Robinson-Foulds distance
+rf_distance <- treedist(one_tree, mix_tree)
+
+# Display the RF distance
+cat("Robinson-Foulds distance:", rf_distance, "\n")
+```
+
+The Robinson-Foulds (RF) distance quantify the dissimilarity or difference between two phylogenetic trees. It calculates the number of bipartitions (splitting of the taxa into two groups) that are present in one tree but not in the other, plus the number of bipartitions that are present in the second tree but not in the first.
+
+1.  **Robinson-Foulds Distance:** 14
+    -   Robinson-Foulds distance is 14, which means there are 14 bipartitions that are present in one tree but not in the other.
+2.  **RF Normalized Distance:** 0.6735708
+    -   The normalized RF distance is approximately 0.67, suggesting a moderate level of dissimilarity between the trees.
+3.  **Weighted Robinson-Foulds Distance:** 91.94564
+    -   The weighted RF distance takes into account the branch lengths in addition to the topology of the trees. It assigns higher weights to bipartitions with longer branches, indicating that changes in longer branches have a greater impact on the overall distance. This value represents the weighted RF distance between the two trees.
+4.  **Weighted Normalized Distance:** 10.17752
+    -   Similar to the normalized RF distance, the weighted normalized distance is a scaled version of the weighted RF distance, giving a normalized value that considers both topology and branch lengths. This value indicates the normalized weighted distance between the trees.
+
+### **Best Model and Parameters**
+
+    ### Read the IQ-TREE file
+
+```{r}
+one_line <- readLines('Data/one_class_single_gene/one_class_EOG09150A0E.iqtree')
+mix_line <- readLines("Data/mixture_class_single_gene/mix_class_EOG09150A0E.iqtree")
+```
+
+    ### Extract best-fit model(one-class & mixture class)
+
+```{r}
+library(data.table)
+library(stringr)
+one_model <- grep("^Model of substitution:", one_line, value = TRUE)
+one_class_mod_lines <- one_line[(which(one_line == one_model)):(which(one_line == one_model)+9)]
+one_class_mod_table <- data.table(Line = one_class_mod_lines)
+setnames(one_class_mod_table, new = "One Class Model")
+one_class_mod_table
+```
+
+```{r}
+mix_model <- grep("^Mixture model of substitution:", mix_line, value = TRUE)
+mix_df1 <- data.table(Line = mix_model)
+setnames(mix_df1, new = "Mix Class Model")
+```
+
+```{r}
+# Example lines
+Component_mix_model <- mix_line[(which(mix_line == mix_model)+3):(which(mix_line == mix_model)+6)]
+# Initialize an empty vector to store words
+all_words <- c()
+# Iterate through each line
+for (line in Component_mix_model) {
+words <- strsplit(line, " ")[[1]]
+      non_empty_words <- words[words != ""]
+      all_words <- c(all_words, non_empty_words)
+    }
+
+    matrix_data <- matrix(all_words,
+                       nrow = 3, ncol = 5, byrow = TRUE)
+# Convert the matrix into a data frame
+mix_df2 <- as.data.frame(matrix_data)
+
+# Add row and column names
+colnames(mix_df2) <- c("No", "Component", "Rate", "Weight", "Parameters")
+
+combined_mod_mix_df <- rbind(mix_df1, mix_df2,fill = TRUE)
+combined_mod_mix_df
+```
+
+### **Model Evaluation: BIC Score, AIC Score, and Likelihood:**
+
+```{r}
+one_BIC <- grep("MAXIMUM LIKELIHOOD TREE", one_line, value = TRUE)
+one_BIC_lines <- one_line[(which(one_line == one_BIC)+2):(which(one_line == one_BIC)+11)]
+one_BIC_table <- data.table(Line = one_BIC_lines)
+setnames(one_BIC_table, new = "ONE CLASS MODEL")
+print(one_BIC_table)
+```
+
+```{r}
+mix_BIC <- grep("MAXIMUM LIKELIHOOD TREE", mix_line, value = TRUE)
+mix_BIC_lines <- mix_line[(which(mix_line == mix_BIC)+2):(which(mix_line == mix_BIC)+11)]
+mix_BIC_table <- data.table(Line = mix_BIC_lines)
+setnames(mix_BIC_table, new = "MIX CLASS MODEL")
+```
+
+```{r}
+combined_BIC_df <- cbind(one_BIC_table,mix_BIC_table)
+print(combined_BIC_df)
+```
+
+## **Conclusion**
+
+### **Best Model Selection**
+
+For the first analysis, the best-fit model according to the Bayesian Information Criterion (BIC) is "MIX{TIM2+FO,JC+FO,HKY+FO}+I+G." - For the second analysis, the best-fit model according to BIC is "TIM2e+I+R4."
+
+### **Interpreting Different Topologies**
+
+The topology of a phylogenetic tree represents the relationships among the sequences being analyzed. Different tree topologies indicate different hypothesized evolutionary relationships between the sequences.
+
+-   D watanabei D punjabiensis was either have paraphyletic relationships to D. kikkawai and D. leontia or have paraphyletic relationships with D. seguy, D. nikananu, D. vulcana, D spaffchauvacae, D bocquet, D burlai, D. jambulina, D. bakoue
+
+-   D wassermani form monophyletic lineage sister to the D. acanthoptera or have paraphyletic relationships where D pachea is sister to the D. acanthoptera
+
+-   D paucipunta form monophyletic lineage sister to the D prolacticillia or have paraphyletic relationships with the D prolacticillia
+
+### **Difference in Tree Length**
+
+The tree length represents the sum of branch lengths in the phylogenetic tree. In the first analysis, the total tree length is approximately 11.4917, and in the second analysis, it's approximately 9.7422. A shorter tree length typically indicates a more compact and potentially more accurate representation of the evolutionary relationships among the sequences.
+
+### **Sensibility of Model Parameters**
+
+## **References**
+
+Suvorov A, Kim BY, Wang J, Armstrong EE, Peede D, D'Agostino ERR, Price DK, Waddell P, Lang M, Courtier-Orgogozo V, David JR, Petrov D, Matute DR, Schrider DR, Comeault AA. Widespread introgression across a phylogeny of 155 Drosophila genomes. Curr Biol. 2022 Jan 10;32(1):111-123.e5. doi: 10.1016/j.cub.2021.10.052. Epub 2021 Nov 16. PMID: 34788634; PMCID: PMC8752469.
+
+Suvorov, Anton; Kim, Bernard; Wang, Jeremy; Armstrong, Ellie; Peede, David; D'Agostino, Emmanuel R. R.; et al. (2020). Widespread introgression across a phylogeny of 155 Drosophila genomes. figshare. Dataset. <https://doi.org/10.6084/m9.figshare.13264697.v1>

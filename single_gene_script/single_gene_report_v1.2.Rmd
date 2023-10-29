@@ -1,0 +1,423 @@
+---
+title: "Single Gene Report V1.2"
+author: "Yilin Bai"
+date: "2023-08-21"
+output: 
+  bookdown::html_document2:
+    code_folding: show
+    number_sections: no
+    toc: yes
+    toc_depth: 6
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,message = FALSE, warning = FALSE)
+```
+
+## Reference
+
+**Dataset:** Suvorov, Anton; Kim, Bernard; Wang, Jeremy; Armstrong, Ellie; Peede, David; D'Agostino, Emmanuel R. R.; et al. (2020). Widespread introgression across a phylogeny of 155 Drosophila genomes. figshare. Dataset. <https://doi.org/10.6084/m9.figshare.13264697.v1>
+
+**Paper:** Suvorov A, Kim BY, Wang J, Armstrong EE, Peede D, D'Agostino ERR, Price DK, Waddell P, Lang M, Courtier-Orgogozo V, David JR, Petrov D, Matute DR, Schrider DR, Comeault AA. Widespread introgression across a phylogeny of 155 Drosophila genomes. Curr Biol. 2022 Jan 10;32(1):111-123.e5. doi: 10.1016/j.cub.2021.10.052. Epub 2021 Nov 16. PMID: 34788634; PMCID: PMC8752469.
+
+## Target alignment
+
+**Name:** EOG09150AOE
+
+**Outgroup:** Anopheles
+
+**Type:** Aligned DNA BUSCO loci
+
+
+```{r}
+library(Biostrings)
+library("knitr")
+
+# List all files in the current directory
+files_in_directory <- list.files()
+
+# Filter the list to include only files with a specific extension (e.g., .fna.aln)
+gene_path <- grep("\\.fna\\.aln$", files_in_directory, value = TRUE)
+sequences <- readDNAStringSet(first_file)
+
+# Set the path and filename for iqtree running result
+prefix_single <- paste("./test/", "Single_", id, sep = "")
+prefix_mix <- paste("./test/", "Mix_", id, sep = "")
+
+# Set the command for both single and mix model
+arg_single <- c("-s", gene_path, "-B", "1000", "--prefix", prefix_single)
+arg_mix <- c("-s", gene_path, "-m", "ESTMIXNUM", "-mrate", "E,I,G,I+G,R,I+R", "-opt_qmix_criteria", "1", "--prefix", prefix_mix)
+
+# Command of run one class model iq-tree
+system2(command = "/Users/lindsaybai/Desktop/BIOL8706/iqtree-2.2.2.7.modelmix-MacOSX/bin/iqtree2", args = arg_single, stdout = FALSE)
+# Command of run mixture class model iq-tree
+system2(command = "/Users/lindsaybai/Desktop/BIOL8706/iqtree-2.2.2.7.modelmix-MacOSX/bin/iqtree2", args = arg_mix, stdout = FALSE)
+```
+
+
+## Alignment summary
+
+```{r}
+# model
+one_line <- readLines('Data/one_class_single_gene/one_class_EOG09150A0E.iqtree')
+mix_line <- readLines("Data/mixture_class_single_gene/mix_class_EOG09150A0E.iqtree")
+```
+
+```{r}
+# length and Ntax
+Length_line <- grep("Input data: ", one_line, value = TRUE)
+
+Length_matches <- gregexpr("\\d+", Length_line)
+Length_numbers <- regmatches(Length_line, Length_matches)[[1]]
+
+# Convert the extracted strings to integers
+Ntaxa <- as.integer(Length_numbers[1])
+Length <- as.integer(Length_numbers[2])
+```
+
+```{r}
+# percent_constant & percent_parsimony_informative
+
+percent_constant_line <- grep("Number of constant sites: ", one_line, value = TRUE)
+percent_constant <- sprintf("%.5s%%", regmatches(percent_constant_line, regexpr("\\d+\\.\\d+%\\s+", percent_constant_line)))
+                            
+percent_constant
+
+parsimony_informative <- as.numeric(sub("Number of parsimony informative sites: ","\\1",grep("Number of parsimony informative sites: ", one_line, value = TRUE))) 
+percent_parsimony_informative <- sprintf("%.2f%%", parsimony_informative / Length * 100)
+percent_parsimony_informative
+
+site_patterns <- as.numeric(sub("Number of distinct site patterns: ","\\1",grep("Number of distinct site patterns: ", one_line, value = TRUE)))
+site_patterns
+```
+
+```{r}
+# Create the data frame
+alignment_data <- data.frame(
+  "Locus_name" = "EOG09150AOE",
+  "Length" = Length,
+  "Ntaxa" = Ntaxa,
+  "Percent_constant" = percent_constant,
+  "Percent_parsimony_informative" = percent_parsimony_informative,
+  "Site_patterns" = site_patterns
+)
+alignment_data
+```
+
+
+## Command of model
+
+```{r}
+# Command of run one class model iq-tree
+iqtree_one_model_command <- ' /Users/lindsaybai/Desktop/BIOL8706/iqtree-2.2.2.7.modelmix-MacOSX/bin/iqtree2 -s /Users/lindsaybai/Desktop/BIOL8706/phylogenetic_project/Phylogenetic_project/Data/mixture_class_single_gene/EOG09150A0E.fna.aln     -B 1000 -T AUTO'
+
+# Command of run mixture class model iq-tree
+iqtree_mixture_command <- '/Users/lindsaybai/Desktop/BIOL8706/iqtree-2.2.2.7.modelmix-MacOSX/bin/iqtree2  -s /Users/lindsaybai/Desktop/BIOL8706/phylogenetic_project/Phylogenetic_project/Data/mixture_class_single_gene/EOG09150A0E.fna.aln     -m "ESTMIXNUM" -mrate E,I,G,I+G,R,I+R -opt_qmix_criteria 1'
+
+system(iqtree_one_model_command)
+system(iqtree_mixture_command)
+```
+
+## Tree Topology
+
+```{r}
+library(ape)
+library(phytools)
+# Read the tree files
+Mixture <- read.tree("Data/mixture_class_single_gene/mix_class_EOG09150A0E.treefile")
+One_class <- read.tree("Data/one_class_single_gene/one_class_EOG09150A0E.treefile")
+Species <- read.tree("Data/mixture_class_single_gene/EOG09150A0E.fna.aln.tr.treefile")
+```
+
+### Phylograms plot
+
+```{r fig.height=20, fig.width= 12}
+par(mfrow = c(1, 2))  # Set the plotting layout to 1 row and 2 columns
+plot(One_class, main = "One class model tree")  # Plot the first tree
+plot(Mixture, main = "Mixture class model tree")  # Plot the second tree
+```
+
+### Cophylogeny plot
+
+```{r fig.height=18, fig.width=10}
+## create co-phylogenetic object
+wasp.cophylo<-cophylo(Mixture,One_class)
+## plot co-phylogenies
+plot(wasp.cophylo,link.type="curved",link.lwd=4,
+ link.lty="solid",link.col=make.transparent("red",
+ 0.25))
+par(mar=c(5.1,4.1,4.1,2.1))
+```
+
+**Phylogenies inferred using these 3 approaches only differed in 2 trees:**
+
+(1) D watanabei D punjabiensis was either have paraphyletic relationships to D. kikkawai and D. leontia or have paraphyletic relationships with D. seguy, D. nikananu, D. vulcana, D spaffchauvacae, D bocquet, D burlai, D. jambulina, D. bakoue
+
+(2) D wassermani form monophyletic lineage sister to the D. acanthoptera or have paraphyletic relationships where D pachea is sister to the D. acanthoptera
+
+(3) D paucipunta form monophyletic lineage sister to the D prolacticillia or have paraphyletic relationships with the D prolacticillia
+
+### Table of topological distance metrics
+
+```{r}
+# Load required packages
+library(ape)
+library(phangorn)
+
+# Placeholder data (replace these with your actual data)
+gene_names <- c("EOG09150AOE")
+tree_names <- c("One_class", "Mixture", "Species")
+tree_files <- list(
+  Mixture = read.tree("Data/mixture_class_single_gene/mix_class_EOG09150A0E.treefile"),
+  One_class = read.tree("Data/one_class_single_gene/one_class_EOG09150A0E.treefile"),
+  Species = read.tree("Data/mixture_class_single_gene/EOG09150A0E.fna.aln.tr.treefile")
+)
+
+# Create an empty data frame to store the results
+result_df <- data.frame(
+  metric = character(0),
+  tree1_name = character(0),
+  tree2_name = character(0),
+  gene_name = character(0),
+  RF_distance = numeric(0),
+  nRF_distance = numeric(0),
+  wRF_distance = numeric(0),
+  KF_distance = numeric(0),
+  PD_distance = numeric(0),
+  wPD_distance = numeric(0)
+)
+
+# Loop through the combinations of gene names and tree pairs
+for (gene in gene_names) {
+    tree_combinations <- combn(length(tree_files), 2, simplify = FALSE)
+    for (comb in tree_combinations) {
+        i <- comb[1]
+        j <- comb[2]
+        
+        tree1 <- tree_files[[i]]
+        tree2 <- tree_files[[j]]
+        tree1_name <- tree_names[i]
+        tree2_name <- tree_names[j]
+      
+       # Placeholder for distance calculation (replace with actual distance calculation function)
+        RF_dist <- RF.dist(tree1, tree2, normalize = FALSE, check.labels = TRUE, rooted = FALSE)
+        nRF_dist <-RF.dist(tree1, tree2, normalize = TRUE, check.labels = TRUE, rooted = FALSE)
+        wRF_dist <- wRF.dist(tree1, tree2, normalize = FALSE, check.labels = TRUE, rooted = FALSE)
+        KF_dist <- KF.dist(tree1, tree2, check.labels = TRUE, rooted = FALSE)
+        PD_dist <- path.dist(tree1, tree2, check.labels = TRUE, use.weight = FALSE)
+        wPD_dist <- path.dist(tree1, tree2, check.labels = TRUE, use.weight = TRUE)
+
+      
+      # Add the results to the data frame
+      result_df <- rbind(result_df, data.frame(
+        gene_name = gene,
+        tree1_name = tree1_name,
+        tree2_name = tree2_name,
+        RF_distance = RF_dist,
+        nRF_distance = nRF_dist,
+        wRF_distance = wRF_dist,
+        KF_distance = KF_dist,
+        PD_distance = PD_dist,
+        wPD_distance = wPD_dist
+      ))
+    }
+}
+
+# Print the resulting data frame
+kable(result_df, "html")
+```
+
+## Branch Lengths
+
+### Summary parameters table
+
+```{r}
+# tree length & Sum_int & prop_int
+one_length <- sub("Total tree length \\(sum of branch lengths\\): ","\\1",grep("Total tree length \\(sum of branch lengths\\): ", one_line, value = TRUE))
+mix_length <- sub("Total tree length \\(sum of branch lengths\\): ","\\1",grep("Total tree length \\(sum of branch lengths\\): ", mix_line, value = TRUE))
+
+one_sum_int <- sub("Sum of internal branch lengths: ([0-9.]+).*","\\1",grep("Sum of internal branch lengths: ([0-9.]+).*", one_line, value = TRUE))
+mix_sum_int <- sub("Sum of internal branch lengths: ([0-9.]+).*","\\1",grep("Sum of internal branch lengths: ([0-9.]+).*", mix_line, value = TRUE))
+
+one_prop_int <- sub(" of tree length", "", sub(".*\\(([^)]+)\\).*","\\1",grep("Sum of internal branch lengths: ([0-9.]+).*", one_line, value = TRUE)))
+mix_prop_int <- sub(" of tree length", "", sub(".*\\(([^)]+)\\).*","\\1",grep("Sum of internal branch lengths: ([0-9.]+).*", mix_line, value = TRUE)))
+```
+
+```{r}
+# Provided Newick tree string
+Mixture_txt <- readLines("Data/mixture_class_single_gene/mix_class_EOG09150A0E.treefile")
+One_class_txt <- readLines("Data/one_class_single_gene/one_class_EOG09150A0E.treefile")
+
+branch_len_mix <- as.numeric(gsub("([0-9.]+).*", "\\1", strsplit(Mixture_txt, ":")[[1]])[-1])
+branch_len_one <- as.numeric(gsub("([0-9.]+).*", "\\1", strsplit(One_class_txt, ":")[[1]])[-1])
+
+sum_branch_len_one <- summary(branch_len_one)
+sum_branch_len_mix <- summary(branch_len_mix)
+```
+
+```{r}
+# Create a dataframe with the provided summary statistics
+df <- data.frame(
+  Tree_Length = c(one_length, mix_length),
+  Sum_int = c(one_sum_int, mix_sum_int),
+  prop_int = c(one_prop_int, mix_prop_int),
+  min = c(sum_branch_len_one[1], sum_branch_len_mix[1]),
+  Qu_1st = c(sum_branch_len_one[2], sum_branch_len_mix[2]),
+  Median = c(sum_branch_len_one[3], sum_branch_len_mix[3]),
+  Mean = c(sum_branch_len_one[4], sum_branch_len_mix[4]),
+  Qu_3rd = c(sum_branch_len_one[5], sum_branch_len_mix[5]),
+  Max = c(sum_branch_len_one[6], sum_branch_len_mix[6]),
+  gene_name = rep(gene_names,2),
+  row.names = c("One model", "Mixture model"))
+# Print the dataframe
+print(df)
+```
+
+### Faceted histogram
+
+```{r}
+# Assuming you have loaded the 'ggplot2' package and have the necessary data
+
+data <- data.frame(
+  model = rep(c("One class", "Mixture"), each = length(branch_len_one)),
+  branch_length = c(branch_len_one, branch_len_mix)
+)
+
+# Create a faceted histogram
+library("ggplot2")
+ggplot(data, aes(x = branch_length)) +
+  geom_histogram(binwidth = 0.1, fill = "blue", color = "black") +
+  facet_grid(model ~ ., scales = "free_y") +  # Facet by 'model', free y-axis scales
+  labs(x = "Branch Length", y = "Frequency") +
+  theme_minimal()+
+  scale_x_log10()
+```
+
+### ECDF plot
+
+```{r}
+# Create an ECDF plot
+ggplot(data, aes(x = branch_length, color = model)) +
+  stat_ecdf(geom = "step") +
+  labs(x = "Branch Length", y = "ECDF") +
+  scale_color_manual(values = c("One class" = "blue", "Mixture" = "red")) +
+  theme_minimal() +
+  theme(legend.position = "top")+
+  scale_x_log10()
+```
+
+## Models
+
+### Description
+
+1. One Class Model
+
+```{r}
+library(data.table)
+library(stringr)
+one_model <- grep("^Model of substitution:", one_line, value = TRUE)
+one_class_mod_lines <- one_line[(which(one_line == one_model)):(which(one_line == one_model)+9)]
+one_class_mod_table <- data.table(Line = one_class_mod_lines)
+setnames(one_class_mod_table, new = "One Class Model")
+one_class_mod_table
+```
+
+```{r}
+mix_model <- grep("^Mixture model of substitution:", mix_line, value = TRUE)
+mix_df1 <- data.table(Line = mix_model)
+setnames(mix_df1, new = "Mix Class Model")
+print(mix_df1)
+```
+
+2. Mix Class Model
+
+```{r}
+# Example lines
+Component_mix_model <- mix_line[(which(mix_line == mix_model)+3):(which(mix_line == mix_model)+6)]
+# Initialize an empty vector to store words
+all_words <- c()
+# Iterate through each line
+for (line in Component_mix_model) {
+words <- strsplit(line, " ")[[1]]
+      non_empty_words <- words[words != ""]
+      all_words <- c(all_words, non_empty_words)
+    }
+
+    matrix_data <- matrix(all_words,
+                       nrow = 3, ncol = 5, byrow = TRUE)
+# Convert the matrix into a data frame
+mix_df2 <- as.data.frame(matrix_data)
+
+# Add row and column names
+colnames(mix_df2) <- c("No", "Component", "Rate", "Weight", "Parameters")
+
+combined_mod_mix_df <- rbind(mix_df1, mix_df2,fill = TRUE)
+combined_mod_mix_df
+```
+
+### Summary table
+
+```{r}
+one_model <- sub("^Model of substitution: ","\\1",grep("^Model of substitution:", one_line, value = TRUE))
+mix_model <- sub("^Mixture model of substitution:", "\\1", mix_model <- grep("^Mixture model of substitution:", mix_line, value = TRUE))
+```
+
+```{r}
+# Rates, Likelihood, Unconstrained_likelihood
+one_rates <- sub("Model of rate heterogeneity: ","\\1",grep("Model of rate heterogeneity: ", one_line, value = TRUE)) 
+mix_rates <-sub("Model of rate heterogeneity: ","\\1",grep("Model of rate heterogeneity: ", mix_line, value = TRUE)) 
+one_likelihood <- sub("Log-likelihood of the tree: " ,"\\1",grep("Log-likelihood of the tree: ", one_line, value = TRUE)) 
+mix_likelihood <- sub("Log-likelihood of the tree: " ,"\\1",grep("Log-likelihood of the tree: ", mix_line, value = TRUE)) 
+
+one_uncons_likelihood <- sub("Unconstrained log-likelihood \\(without tree\\):","\\1",grep("Unconstrained log-likelihood \\(without tree\\):", one_line, value = TRUE)) 
+mix_uncons_likelihood <- sub("Unconstrained log-likelihood \\(without tree\\):","\\1",grep("Unconstrained log-likelihood \\(without tree\\):", mix_line, value = TRUE)) 
+```
+
+```{r}
+# parameters
+one_para <- sub("Number of free parameters \\(#branches \\+ #model parameters\\): ","\\1",grep("Number of free parameters \\(#branches \\+ #model parameters\\): ", one_line, value = TRUE))
+mix_para <- sub("Number of free parameters \\(#branches \\+ #model parameters\\): ","\\1",grep("Number of free parameters \\(#branches \\+ #model parameters\\): ", mix_line, value = TRUE))
+```
+
+```{r}
+# AIC,AICc, BIC,
+one_AIC <- sub("Akaike information criterion \\(AIC\\) score: ","\\1",grep("Akaike information criterion \\(AIC\\) score: ", one_line, value = TRUE))
+mix_AIC <- sub("Akaike information criterion \\(AIC\\) score: ","\\1",grep("Akaike information criterion \\(AIC\\) score: ", mix_line, value = TRUE))
+
+one_AICC <- sub("Corrected Akaike information criterion \\(AICc\\) score: ","\\1",grep("Corrected Akaike information criterion \\(AICc\\) score: ", one_line, value = TRUE))
+mix_AICC <- sub("Corrected Akaike information criterion \\(AICc\\) score: ","\\1",grep("Corrected Akaike information criterion \\(AICc\\) score: ", mix_line, value = TRUE))
+
+one_BIC <- sub("Bayesian information criterion \\(BIC\\) score: ","\\1",grep("Bayesian information criterion \\(BIC\\) score: ", one_line, value = TRUE))
+mix_BIC <- sub("Bayesian information criterion \\(BIC\\) score: ","\\1",grep("Bayesian information criterion \\(BIC\\) score: ", mix_line, value = TRUE))
+
+if (one_BIC < mix_BIC) {
+  best_model <- "One"
+} else if (mix_BIC < one_BIC) {
+  best_model <- "Mixture"
+} else {
+  best_model <- "Both models have the same BIC score"
+}
+```
+
+```{r}
+# Create the data frame
+model_data <- data.frame(
+  row.names = c("One model", "Mixture model"),
+  Classes = c(1, 3),
+  Model_String = c(one_model, mix_model),
+  Rates = c(one_rates, mix_rates),
+  Likelihood = c(one_likelihood,mix_likelihood),
+  Unconstrained_likelihood = c(one_uncons_likelihood,mix_uncons_likelihood),
+  parameters = c(one_para,mix_para),
+  AIC = c(one_AIC,mix_AIC),
+  AICc = c(one_AICC,mix_AICC),
+  BIC = c(one_BIC, mix_BIC),
+  Best = rep(best_model,2),
+  gene_name = rep(gene_names,2)
+)
+```
+
+```{r}
+kable(model_data, "html")
+```

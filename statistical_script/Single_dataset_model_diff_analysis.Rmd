@@ -1,0 +1,162 @@
+---
+jupyter:
+  jupytext:
+    formats: ipynb,Rmd
+    text_representation:
+      extension: .Rmd
+      format_name: rmarkdown
+      format_version: '1.2'
+      jupytext_version: 1.15.2
+  kernelspec:
+    display_name: R
+    language: R
+    name: ir
+---
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+summary <- read_csv("summary.csv")
+colnames(summary)
+```
+
+```{r}
+summary$Best %>% table()/2
+```
+
+```{r}
+summary <- summary %>%
+  mutate(Percent_parsimony_informative = str_remove(Percent_parsimony_informative, "%") %>% as.numeric()) %>%
+  mutate(If_mix = str_detect(Model_string, "MIX"),
+         Num_class = str_count(Model_string, ",") + 1)
+
+summary <- summary %>%
+  group_by(Locus_name) %>%
+  mutate(If_mix = if(any(If_mix[Model == "Mixture"])) TRUE else FALSE) %>%
+  ungroup()
+```
+
+
+```{r}
+summary$If_mix %>% table()/2
+summary %>% filter(Model == "Mixture") %>% select(Num_class) %>% table()
+```
+
+```{r}
+summary %>% ggplot(aes(x = Likelihood, fill = Model)) + geom_density(alpha = 0.5) + facet_wrap(~If_mix, nrow = 2)
+```
+
+```{r}
+summary %>% ggplot(aes(x = Tree_Length, fill = Model)) + geom_density(alpha = 0.5) + facet_wrap(~If_mix, nrow = 2)
+```
+
+```{r}
+summary %>% filter(If_mix == TRUE) %>%
+  ggplot(aes(x = Percent_parsimony_informative, y = Likelihood, color = Model, group = Locus_name)) + 
+  geom_point() +
+  geom_line()
+```
+
+```{r}
+summary %>%
+  ggplot(aes(x = reorder(Locus_name, prop_int), y = prop_int, color = Model, group = Locus_name)) + 
+  geom_point() +
+  geom_line() +
+  facet_wrap(~If_mix)
+```
+
+```{r}
+summary %>%
+  ggplot(aes(x = Percent_parsimony_informative, y = Tree_Length, group = Locus_name)) + 
+  geom_point(aes(color = Model), size = 0.5, alpha = 0.5) +
+  geom_line(aes(color = If_mix)) +
+  scale_color_manual(values = c("Mixture" = "green3", "One_class" = "gray", "TRUE" = "orange", "FALSE" = "skyblue"))
+
+```
+
+```{r}
+summary %>%
+  ggplot(aes(x = BIC, y = RF_distance, group = Locus_name)) + 
+  geom_point(aes(color = Model)) +
+  geom_line(aes(color = If_mix)) +
+  scale_color_manual(values = c("Mixture" = "green3", "One_class" = "gray", "TRUE" = "orange", "FALSE" = "skyblue"))
+
+```
+
+```{r}
+colnames(summary)
+```
+
+```{r}
+summary_diff <- summary %>%
+  select(Model, Locus_name, where(is.numeric)) %>%
+  select(-c(Length, Ntaxa, Percent_constant, Site_patterns, Num_class)) %>%
+  gather(Parameter, Value, -Model, -Locus_name) %>%
+  spread(Model, Value) %>%
+  group_by(Locus_name, Parameter) %>%
+  mutate(Difference =  Mixture - One_class) %>%
+  ungroup() %>%
+  select(-Mixture, -One_class) %>%
+    pivot_wider(names_from = Parameter, values_from = Difference)
+
+summary_diff_add <- summary %>%
+  select(Model, Locus_name, If_mix, Best, Length, Ntaxa, Percent_constant, Percent_parsimony_informative, Site_patterns, Num_class) %>%
+  filter(Model == "Mixture") %>%
+  select(-Model)
+
+summary_diff <- left_join(summary_diff, summary_diff_add, by = c("Locus_name"))
+```
+
+```{r}
+summary_diff_percent <- summary %>%
+  select(Model, Locus_name, where(is.numeric)) %>%
+  select(-c(Length, Ntaxa, Percent_constant, Site_patterns, Num_class)) %>%
+  gather(Parameter, Value, -Model, -Locus_name) %>%
+  spread(Model, Value) %>%
+  group_by(Locus_name, Parameter) %>%
+  mutate(Difference =  (Mixture - One_class)/One_class) %>%
+  ungroup() %>%
+  select(-Mixture, -One_class) %>%
+    pivot_wider(names_from = Parameter, values_from = Difference)
+
+summary_diff_percent_add <- summary %>%
+  select(Model, Locus_name, If_mix, Best, Length, Ntaxa, Percent_constant, Percent_parsimony_informative, Site_patterns, Num_class) %>%
+  filter(Model == "Mixture") %>%
+  select(-Model)
+
+summary_diff_percent <- left_join(summary_diff_percent, summary_diff_percent_add, by = c("Locus_name"))
+```
+
+```{r}
+summary_diff %>% ggplot(aes(x = Likelihood, fill = as.factor(Num_class))) + 
+  geom_density(alpha = 0.5) +
+  xlim
+```
+
+```{r}
+summary_diff %>% ggplot(aes(x = BIC, fill = as.factor(Num_class))) + 
+  geom_density(alpha = 0.5) + xlim(-110,60)
+```
+
+```{r}
+summary_diff %>% ggplot(aes(x = RF_distance, fill = as.factor(Num_class))) + 
+  geom_density(alpha = 0.5)
+```
+
+```{r}
+high_diff_bl <- summary_diff_percent %>% filter(abs(Tree_Length) > 0.1) %>% select(Locus_name, Ntaxa, Tree_Length, If_mix, BIC, Tree_Length, RF_distance, Best)
+table(high_diff_bl$If_mix)
+table(high_diff_bl$Best)
+```
+
+```{r}
+summary_diff %>% ggplot(aes(x = as.factor(Num_class), y= RF_distance)) + 
+  geom_violin()
+```
+
+```{r}
+summary_diff %>% ggplot(aes(x = prop_int)) + 
+    geom_density(alpha = 0.5) + facet_wrap(~Num_class, nrow = length(unique(summary_diff$Num_class)), scales = "free_y")
+```
