@@ -7,12 +7,13 @@ Using mixture models for the phylogenetic analysis of pleurocarpous mosses
 
 ## Table of Contents
 
-[single_gene_script]: all the R script used in single gene analysis
-[statistical_script]: all the R script used in 650 genes statistical analysis
+`single_gene_tree`: all the 650 genes alignment and tree estimated by one-class model and mixture model
 
-## Installation
+`single_gene_script`: all the R script used in single gene analysis
 
-Provide instructions on how to install your project. Include any dependencies and system requirements. For example:
+`statistical_script`: all the R script used in 650 genes statistical analysis
 
-```bash
-pip install my-project
+`tool_script`: all the R script run in the console
+
+`result`: all the statistical result
+
